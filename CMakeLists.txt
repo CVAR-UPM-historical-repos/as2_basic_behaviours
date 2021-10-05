@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
-project(pixhawk_test)
 set(PROJECT_NAME as2_basic_behaviours)
+project(${PROJECT_NAME})
 
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
@@ -31,16 +31,17 @@ set(SOURCE_CPP_FILES
   src/takeoff_behaviour.cpp
   )
 
-set(HEADER_HPP_FILES
-  include/as2_basic_behaviour.hpp
-  include/takeoff_behaviour.hpp
-  include/land_behaviour.hpp
-  include/gotowaypoint_behaviour.hpp
-)
+# set(HEADER_HPP_FILES
+#   include/as2_basic_behaviour.hpp
+#   include/takeoff_behaviour.hpp
+#   include/land_behaviour.hpp
+#   include/gotowaypoint_behaviour.hpp
+# )
 
 include_directories(
   include
 )
+
 set(DEPENDENCIES_LIST
 rclcpp 
 sensor_msgs 
@@ -56,14 +57,19 @@ rclcpp_action
 as2_control_command_handlers
 )
 
-add_executable(land_behaviour_node src/land_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
+add_executable(land_behaviour_node src/land_behaviour_node.cpp ${SOURCE_CPP_FILES})
+target_include_directories(land_behaviour_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 ament_target_dependencies(land_behaviour_node ${DEPENDENCIES_LIST})
  
-add_executable(takeoff_behaviour_node src/takeoff_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
-ament_target_dependencies(takeoff_behaviour_node ${DEPENDENCIES_LIST})
+# add_executable(takeoff_behaviour_node src/takeoff_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
+# ament_target_dependencies(takeoff_behaviour_node ${DEPENDENCIES_LIST})
 
-add_executable(gotowaypoint_behaviour_node src/gotowaypoint_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
-ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
+# add_executable(gotowaypoint_behaviour_node src/gotowaypoint_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
+# ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
 
 
 if(BUILD_TESTING)
@@ -83,8 +89,8 @@ install(DIRECTORY
 
 install(TARGETS
   land_behaviour_node
-  takeoff_behaviour_node
-  gotowaypoint_behaviour_node
+  # takeoff_behaviour_node
+  # gotowaypoint_behaviour_node
   DESTINATION lib/${PROJECT_NAME})
 
 # if(BUILD_TESTING)

@@ -1,7 +1,5 @@
 // "Copyright [year] <Copyright Owner>"
 
-#include "as2_basic_behaviour.hpp"
-
 #include "land_behaviour.hpp"
 
 int main(int argc, char * argv[])
