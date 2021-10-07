@@ -62,15 +62,22 @@ target_include_directories(land_behaviour_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-
 ament_target_dependencies(land_behaviour_node ${DEPENDENCIES_LIST})
  
-# add_executable(takeoff_behaviour_node src/takeoff_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
-# ament_target_dependencies(takeoff_behaviour_node ${DEPENDENCIES_LIST})
+add_executable(takeoff_behaviour_node src/takeoff_behaviour_node.cpp ${SOURCE_CPP_FILES})
+target_include_directories(takeoff_behaviour_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(takeoff_behaviour_node ${DEPENDENCIES_LIST})
 
-# add_executable(gotowaypoint_behaviour_node src/gotowaypoint_behaviour_node.cpp ${SOURCE_CPP_FILES} ${HEADER_HPP_FILES})
-# ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
 
+add_executable(gotowaypoint_behaviour_node src/gotowaypoint_behaviour_node.cpp ${SOURCE_CPP_FILES})
+target_include_directories(gotowaypoint_behaviour_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_cpplint REQUIRED)
@@ -89,8 +96,8 @@ install(DIRECTORY
 
 install(TARGETS
   land_behaviour_node
-  # takeoff_behaviour_node
-  # gotowaypoint_behaviour_node
+  takeoff_behaviour_node
+  gotowaypoint_behaviour_node
   DESTINATION lib/${PROJECT_NAME})
 
 # if(BUILD_TESTING)
