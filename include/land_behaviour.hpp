@@ -65,6 +65,7 @@ public:
   {
     return rclcpp_action::CancelResponse::ACCEPT;
   };
+  
   bool checkGoalCondition(){
     
     if (fabs(actual_z_speed_) < 0.1){

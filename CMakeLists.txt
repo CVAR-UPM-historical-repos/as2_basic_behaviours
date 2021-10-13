@@ -79,6 +79,14 @@ target_include_directories(gotowaypoint_behaviour_node
     $<INSTALL_INTERFACE:include>)
 ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
 
+
+add_executable(follow_path_behaviour_node src/follow_path_behaviour_node.cpp ${SOURCE_CPP_FILES})
+target_include_directories(follow_path_behaviour_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(follow_path_behaviour_node ${DEPENDENCIES_LIST})
+
 if(BUILD_TESTING)
   find_package(ament_cmake_cpplint REQUIRED)
   find_package(ament_cmake_cppcheck REQUIRED)
