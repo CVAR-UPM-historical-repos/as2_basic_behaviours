@@ -28,12 +28,11 @@ class BasicBehaviour: public aerostack2::Node{
 public:
 
   using GoalHandleAction = rclcpp_action::ServerGoalHandle<MessageT>;
-  
 
   BasicBehaviour(const std::string& name) 
     :Node(name)
     {
-
+    
     this->action_server_ = rclcpp_action::create_server<MessageT>(
       this,
       this->generate_topic_name(name),
