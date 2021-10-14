@@ -106,6 +106,7 @@ install(TARGETS
   land_behaviour_node
   takeoff_behaviour_node
   gotowaypoint_behaviour_node
+  follow_path_behaviour_node
   DESTINATION lib/${PROJECT_NAME})
 
 # if(BUILD_TESTING)
