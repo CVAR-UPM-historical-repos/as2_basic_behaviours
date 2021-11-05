@@ -31,7 +31,7 @@ public:
     remaining_waypoints_ = -1;  
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
        
-        this->generate_topic_name("/self_localization/odom"), 10,
+        this->generate_global_name("/self_localization/odom"), 10,
         [this](const nav_msgs::msg::Odometry::ConstSharedPtr msg)
         {
           this->odom_msg_ = *(msg.get());
@@ -73,7 +73,7 @@ public:
         });
 
     traj_waypoints_pub_ = this->create_publisher<aerostack2_msgs::msg::TrajectoryWaypoints>(
-        this->generate_topic_name("/motion_reference/waypoints"), 10);
+        this->generate_global_name("/motion_reference/waypoints"), 10);
 
   };
 

@@ -30,7 +30,7 @@ public:
 
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
        //FIXME: change topic name
-        this->generate_topic_name("/self_localization/odom"), 10,
+        this->generate_global_name("/self_localization/odom"), 10,
         [this](const nav_msgs::msg::Odometry::ConstSharedPtr msg)
         {
           this->odom_msg_ = *(msg.get());

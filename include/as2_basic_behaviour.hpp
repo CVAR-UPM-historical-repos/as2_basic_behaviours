@@ -35,7 +35,7 @@ public:
     
     this->action_server_ = rclcpp_action::create_server<MessageT>(
       this,
-      this->generate_topic_name(name),
+      this->generate_global_name(name),
       std::bind(&BasicBehaviour::handleGoal, this, std::placeholders::_1, std::placeholders::_2),
       std::bind(&BasicBehaviour::handleCancel, this, std::placeholders::_1),
       std::bind(&BasicBehaviour::handleAccepted, this, std::placeholders::_1));
