@@ -10,8 +10,8 @@
 #include "as2_control_command_handlers/position_control.hpp"
 #include "as2_control_command_handlers/speed_control.hpp"
 
-#include <aerostack2_msgs/action/follow_path.hpp>
-#include <aerostack2_msgs/msg/trajectory_waypoints.hpp>
+#include <as2_msgs/action/follow_path.hpp>
+#include <as2_msgs/msg/trajectory_waypoints.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -20,13 +20,13 @@
 #define GOAL_THRESHOLD 0.5 // [m]
 
 
-class FollowPathBehaviour : public aerostack2::BasicBehaviour<aerostack2_msgs::action::FollowPath>
+class FollowPathBehaviour : public as2::BasicBehaviour<as2_msgs::action::FollowPath>
 {
 public:
-  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::FollowPath>;
+  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::FollowPath>;
   
 
-  FollowPathBehaviour() : aerostack2::BasicBehaviour<aerostack2_msgs::action::FollowPath>("FollowPathBehaviour")
+  FollowPathBehaviour() : as2::BasicBehaviour<as2_msgs::action::FollowPath>("FollowPathBehaviour")
   {
     remaining_waypoints_ = -1;  
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
@@ -72,12 +72,12 @@ public:
 
         });
 
-    traj_waypoints_pub_ = this->create_publisher<aerostack2_msgs::msg::TrajectoryWaypoints>(
+    traj_waypoints_pub_ = this->create_publisher<as2_msgs::msg::TrajectoryWaypoints>(
         this->generate_global_name("/motion_reference/waypoints"), 10);
 
   };
 
-  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const aerostack2_msgs::action::FollowPath::Goal> goal)
+  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const as2_msgs::action::FollowPath::Goal> goal)
   {
     trajectory_waypoints_msg_ = goal->trajectory_waypoints;
 
@@ -97,7 +97,7 @@ public:
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 
   };
-  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::FollowPath>> goal_handle)
+  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::FollowPath>> goal_handle)
   {
     remaining_waypoints_ = -1;
     return rclcpp_action::CancelResponse::ACCEPT;
@@ -110,14 +110,14 @@ public:
     return false;
   };
 
-  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::FollowPath>> goal_handle)
+  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::FollowPath>> goal_handle)
   {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
     rclcpp::Rate loop_rate(10);
     const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<aerostack2_msgs::action::FollowPath::Feedback>();
-    auto result = std::make_shared<aerostack2_msgs::action::FollowPath::Result>();
+    auto feedback = std::make_shared<as2_msgs::action::FollowPath::Feedback>();
+    auto result = std::make_shared<as2_msgs::action::FollowPath::Result>();
 
     time_ = this->now();
 
@@ -166,10 +166,10 @@ private:
   std::atomic<float> next_waypoint_z_;
   
   nav_msgs::msg::Odometry odom_msg_;
-  aerostack2_msgs::msg::TrajectoryWaypoints trajectory_waypoints_msg_;
+  as2_msgs::msg::TrajectoryWaypoints trajectory_waypoints_msg_;
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  rclcpp::Publisher<aerostack2_msgs::msg::TrajectoryWaypoints>::SharedPtr traj_waypoints_pub_;
+  rclcpp::Publisher<as2_msgs::msg::TrajectoryWaypoints>::SharedPtr traj_waypoints_pub_;
 
   rclcpp::Time time_; 
   

@@ -3,9 +3,10 @@
 #ifndef AS2_BASIC_BEHAVIOUR_HPP_
 #define AS2_BASIC_BEHAVIOUR_HPP_
 
-#include "aerostack2_core/aerial_platform.hpp"
-#include "aerostack2_core/sensor.hpp"
-#include "aerostack2_msgs/msg/thrust.hpp"
+#include "as2_core/node.hpp"
+#include "as2_core/aerial_platform.hpp"
+#include "as2_core/sensor.hpp"
+#include "as2_msgs/msg/thrust.hpp"
 
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
@@ -15,16 +16,15 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 
 
-
 #include <memory>
 #include <string>
 #include <chrono>
 #include <cmath>
 
-namespace aerostack2{
+namespace as2{
 
 template<class MessageT>
-class BasicBehaviour: public aerostack2::Node{
+class BasicBehaviour: public as2::Node{
 public:
 
   using GoalHandleAction = rclcpp_action::ServerGoalHandle<MessageT>;
@@ -89,7 +89,7 @@ private:
 
 };
 
-} // end namespace aerostack2
+} // end namespace as2
 
 
 #endif

@@ -10,7 +10,7 @@
 #include "as2_control_command_handlers/position_control.hpp"
 #include "as2_control_command_handlers/speed_control.hpp"
 
-#include <aerostack2_msgs/action/go_to_waypoint.hpp>
+#include <as2_msgs/action/go_to_waypoint.hpp>
 
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -19,16 +19,16 @@
 #define GOAL_THRESHOLD 0.1 // [m]
 
 
-class GoToWaypointBehaviour : public aerostack2::BasicBehaviour<aerostack2_msgs::action::GoToWaypoint>
+class GoToWaypointBehaviour : public as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>
 {
 public:
-  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::GoToWaypoint>;
+  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::GoToWaypoint>;
 
-  GoToWaypointBehaviour() : aerostack2::BasicBehaviour<aerostack2_msgs::action::GoToWaypoint>("GoToWaypointBehaviour")
+  GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>("GoToWaypointBehaviour")
   {
 
-    speed_controller_ptr_=  std::make_shared<aerostack2::controlCommandsHandlers::SpeedControl>(this);
-    position_controller_ptr_=  std::make_shared<aerostack2::controlCommandsHandlers::PositionControl>(this);
+    speed_controller_ptr_=  std::make_shared<as2::controlCommandsHandlers::SpeedControl>(this);
+    position_controller_ptr_=  std::make_shared<as2::controlCommandsHandlers::PositionControl>(this);
 
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
        
@@ -50,7 +50,7 @@ public:
 
   };
 
-  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const aerostack2_msgs::action::GoToWaypoint::Goal> goal)
+  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const as2_msgs::action::GoToWaypoint::Goal> goal)
   {
 
     if ((fabs(goal->target_pose.position.x) +
@@ -91,7 +91,7 @@ public:
     }
 
   };
-  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::GoToWaypoint>> goal_handle)
+  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::GoToWaypoint>> goal_handle)
   {
     return rclcpp_action::CancelResponse::ACCEPT;
   };
@@ -103,14 +103,14 @@ public:
     return false;
   };
 
-  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::GoToWaypoint>> goal_handle)
+  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::GoToWaypoint>> goal_handle)
   {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
     rclcpp::Rate loop_rate(10);
     const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<aerostack2_msgs::action::GoToWaypoint::Feedback>();
-    auto result = std::make_shared<aerostack2_msgs::action::GoToWaypoint::Result>();
+    auto feedback = std::make_shared<as2_msgs::action::GoToWaypoint::Feedback>();
+    auto result = std::make_shared<as2_msgs::action::GoToWaypoint::Result>();
 
     time_ = this->now();
 
@@ -156,8 +156,8 @@ private:
   float desired_height_ = 0.0;
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  std::shared_ptr<aerostack2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
-  std::shared_ptr<aerostack2::controlCommandsHandlers::PositionControl> position_controller_ptr_;
+  std::shared_ptr<as2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
+  std::shared_ptr<as2::controlCommandsHandlers::PositionControl> position_controller_ptr_;
   rclcpp::Time time_; 
 
   

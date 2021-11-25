@@ -9,7 +9,7 @@
 #include "as2_control_command_handlers/position_control.hpp"
 #include "as2_control_command_handlers/speed_control.hpp"
 
-#include <aerostack2_msgs/action/take_off.hpp>
+#include <as2_msgs/action/take_off.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -18,15 +18,15 @@
 #define DEFAULT_TAKEOFF_SPEED 0.4 // [m/s]
 #define TAKEOFF_HEIGHT_THRESHOLD 0.1 // [m]
 
-class TakeOffBehaviour : public aerostack2::BasicBehaviour<aerostack2_msgs::action::TakeOff>
+class TakeOffBehaviour : public as2::BasicBehaviour<as2_msgs::action::TakeOff>
 {
 public:
-  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::TakeOff>;
+  using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>;
 
-  TakeOffBehaviour() : aerostack2::BasicBehaviour<aerostack2_msgs::action::TakeOff>("TakeOffBehaviour")
+  TakeOffBehaviour() : as2::BasicBehaviour<as2_msgs::action::TakeOff>("TakeOffBehaviour")
   {
 
-    speed_controller_ptr_=  std::make_shared<aerostack2::controlCommandsHandlers::SpeedControl>(this);
+    speed_controller_ptr_=  std::make_shared<as2::controlCommandsHandlers::SpeedControl>(this);
 
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
        //FIXME: change topic name
@@ -40,7 +40,7 @@ public:
 
   };
 
-  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const aerostack2_msgs::action::TakeOff::Goal> goal)
+  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const as2_msgs::action::TakeOff::Goal> goal)
   {
     
     
@@ -61,19 +61,19 @@ public:
     }
 
   };
-  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::TakeOff>> goal_handle)
+  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>> goal_handle)
   {
     return rclcpp_action::CancelResponse::ACCEPT;
   };
 
-  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<aerostack2_msgs::action::TakeOff>> goal_handle)
+  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>> goal_handle)
   {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
 
     rclcpp::Rate loop_rate(10);
     const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<aerostack2_msgs::action::TakeOff::Feedback>();
-    auto result = std::make_shared<aerostack2_msgs::action::TakeOff::Result>();
+    auto feedback = std::make_shared<as2_msgs::action::TakeOff::Feedback>();
+    auto result = std::make_shared<as2_msgs::action::TakeOff::Result>();
 
     // Check if goal is done
     while ((desired_height_ - actual_heigth_) > 0 +TAKEOFF_HEIGHT_THRESHOLD)
@@ -114,7 +114,7 @@ private:
   float desired_height_ = 0.0;
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  std::shared_ptr<aerostack2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
+  std::shared_ptr<as2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
 
 
   

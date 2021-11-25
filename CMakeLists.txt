@@ -8,24 +8,27 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 # find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_action REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(px4_msgs REQUIRED)
-find_package(aerostack2_core REQUIRED)
-find_package(aerostack2_msgs REQUIRED)
-find_package(px4_ros_com REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(as2_control_command_handlers REQUIRED)
 
+set(PROJECT_DEPENDENCIES
+  ament_cmake
+  rclcpp
+  rclcpp_action
+  std_msgs
+  sensor_msgs
+  geometry_msgs
+  nav_msgs
+  px4_msgs
+  as2_core
+  as2_msgs
+  px4_ros_com
+  std_srvs
+  as2_control_command_handlers
+)
 
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+foreach(DEPENDENCY ${PROJECT_DEPENDENCIES})
+  find_package(${DEPENDENCY} REQUIRED)
+endforeach()
+
 set(SOURCE_CPP_FILES 
   src/as2_basic_behaviour.cpp
   src/takeoff_behaviour.cpp
@@ -42,34 +45,19 @@ include_directories(
   include
 )
 
-set(DEPENDENCIES_LIST
-rclcpp 
-sensor_msgs 
-std_msgs
-std_srvs
-nav_msgs
-px4_msgs
-px4_ros_com
-aerostack2_core
-aerostack2_msgs
-geometry_msgs
-rclcpp_action
-as2_control_command_handlers
-)
-
 add_executable(land_behaviour_node src/land_behaviour_node.cpp ${SOURCE_CPP_FILES})
 target_include_directories(land_behaviour_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-ament_target_dependencies(land_behaviour_node ${DEPENDENCIES_LIST})
+ament_target_dependencies(land_behaviour_node ${PROJECT_DEPENDENCIES})
  
 add_executable(takeoff_behaviour_node src/takeoff_behaviour_node.cpp ${SOURCE_CPP_FILES})
 target_include_directories(takeoff_behaviour_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-ament_target_dependencies(takeoff_behaviour_node ${DEPENDENCIES_LIST})
+ament_target_dependencies(takeoff_behaviour_node ${PROJECT_DEPENDENCIES})
 
 
 add_executable(gotowaypoint_behaviour_node src/gotowaypoint_behaviour_node.cpp ${SOURCE_CPP_FILES})
@@ -77,7 +65,7 @@ target_include_directories(gotowaypoint_behaviour_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-ament_target_dependencies(gotowaypoint_behaviour_node ${DEPENDENCIES_LIST})
+ament_target_dependencies(gotowaypoint_behaviour_node ${PROJECT_DEPENDENCIES})
 
 
 add_executable(follow_path_behaviour_node src/follow_path_behaviour_node.cpp ${SOURCE_CPP_FILES})
@@ -85,14 +73,13 @@ target_include_directories(follow_path_behaviour_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-ament_target_dependencies(follow_path_behaviour_node ${DEPENDENCIES_LIST})
+ament_target_dependencies(follow_path_behaviour_node ${PROJECT_DEPENDENCIES})
+
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_cpplint REQUIRED)
   find_package(ament_cmake_cppcheck REQUIRED)
   find_package(ament_cmake_clang_format REQUIRED)
   
-  ament_cpplint(src/ include/)
   ament_cppcheck(src/ include/)
   ament_clang_format(src/ include/)
 
@@ -109,9 +96,5 @@ install(TARGETS
   follow_path_behaviour_node
   DESTINATION lib/${PROJECT_NAME})
 
-# if(BUILD_TESTING)
-#   find_package(ament_lint_auto REQUIRED)
-#   ament_lint_auto_find_test_dependencies()
-# endif()
 
 ament_package()
