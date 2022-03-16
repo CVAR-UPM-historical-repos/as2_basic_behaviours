@@ -16,6 +16,7 @@
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>trajectory_msgs</depend>
   <depend>px4_msgs</depend>
   <depend>as2_core</depend>
   <depend>as2_msgs</depend>

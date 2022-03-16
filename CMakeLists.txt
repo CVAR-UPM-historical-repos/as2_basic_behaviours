@@ -23,6 +23,7 @@ set(PROJECT_DEPENDENCIES
   px4_ros_com
   std_srvs
   as2_control_command_handlers
+  trajectory_msgs
 )
 
 foreach(DEPENDENCY ${PROJECT_DEPENDENCIES})
@@ -32,6 +33,7 @@ endforeach()
 set(SOURCE_CPP_FILES 
   src/as2_basic_behaviour.cpp
   src/takeoff_behaviour.cpp
+  src/gotowaypoint_behaviour.cpp
   )
 
 # set(HEADER_HPP_FILES
