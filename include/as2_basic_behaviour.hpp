@@ -50,6 +50,7 @@ public:
 protected:
 
 private:
+  std::thread execution_thread_;
   
     // float feedback_freq_;
     typename rclcpp_action::Server<MessageT>::SharedPtr action_server_;
@@ -67,7 +68,10 @@ private:
     void handleAccepted(const std::shared_ptr<GoalHandleAction> goal_handle){
     // this needs to return quickly to avoid blocking the executor, so spin up a new thread
     //TODO: understand why this is necessary
-      std::thread{std::bind(&BasicBehaviour::onExecute, this, std::placeholders::_1), goal_handle}.detach();
+      if (execution_thread_.joinable()) {
+        execution_thread_.join();
+      }
+      execution_thread_ = std::thread(std::bind(&BasicBehaviour::onExecute, this, std::placeholders::_1), goal_handle);
     };
 
     // void __execute(const std::shared_ptr<GoalHandleAction> goal_handle) {
