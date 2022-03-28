@@ -2,6 +2,7 @@
 
 GoToWaypointBehaviour::GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>("GoToWaypointBehaviour")
 {
+  // FIXME: Topics names
   odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
       this->generate_global_name("/self_localization/odom"), 10,
       std::bind(&GoToWaypointBehaviour::odomCb, this, std::placeholders::_1));

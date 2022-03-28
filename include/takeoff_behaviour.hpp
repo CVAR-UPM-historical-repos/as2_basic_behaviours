@@ -1,4 +1,4 @@
-#ifndef TAKE_OFF_BEHAVIOUR_HPP 
+#ifndef TAKE_OFF_BEHAVIOUR_HPP
 #define TAKE_OFF_BEHAVIOUR_HPP
 
 #include <memory>
@@ -13,9 +13,10 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
 #define DEFAULT_TAKEOFF_ALTITUDE 1.0 // [m]
-#define DEFAULT_TAKEOFF_SPEED 0.4 // [m/s]
+#define DEFAULT_TAKEOFF_SPEED 0.4    // [m/s]
 #define TAKEOFF_HEIGHT_THRESHOLD 0.1 // [m]
 
 class TakeOffBehaviour : public as2::BasicBehaviour<as2_msgs::action::TakeOff>
@@ -23,87 +24,14 @@ class TakeOffBehaviour : public as2::BasicBehaviour<as2_msgs::action::TakeOff>
 public:
   using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>;
 
-  TakeOffBehaviour() : as2::BasicBehaviour<as2_msgs::action::TakeOff>("TakeOffBehaviour")
-  {
+  TakeOffBehaviour();
 
-    speed_controller_ptr_=  std::make_shared<as2::controlCommandsHandlers::SpeedControl>(this);
+  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const as2_msgs::action::TakeOff::Goal> goal);
+  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<GoalHandleTakeoff> goal_handle);
+  void onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_handle);
 
-    odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-       //FIXME: change topic name
-        this->generate_global_name("/self_localization/odom"), 10,
-        [this](const nav_msgs::msg::Odometry::ConstSharedPtr msg)
-        {
-          this->odom_msg_ = *(msg.get());
-          this->actual_heigth_ = msg->pose.pose.position.z;
-          this->actual_z_speed_ = msg->twist.twist.linear.z;
-        });
-
-  };
-
-  rclcpp_action::GoalResponse onAccepted(const std::shared_ptr<const as2_msgs::action::TakeOff::Goal> goal)
-  {
-    
-    
-    desired_speed_ = (goal->takeoff_speed!=0.0f)?goal->takeoff_speed: DEFAULT_TAKEOFF_SPEED;
-    desired_height_ = (goal->takeoff_height!=0.0f)?goal->takeoff_height: DEFAULT_TAKEOFF_ALTITUDE;
-
-    RCLCPP_INFO(this->get_logger(), "TakeOffBehaviour: TakeOff with speed %f and height %f", desired_speed_, desired_height_);
-    
-    
-    if (speed_controller_ptr_->sendSpeedCommandWithYawAngle(0,0,desired_speed_,odom_msg_.pose.pose.orientation))
-    {
-      RCLCPP_INFO(this->get_logger(), "Takeoff speed command sent");
-      return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-    }
-    else{
-      RCLCPP_ERROR(this->get_logger(), "Failed to send takeoff speed command");
-      return rclcpp_action::GoalResponse::REJECT;
-    }
-
-  };
-  rclcpp_action::CancelResponse onCancel(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>> goal_handle)
-  {
-    return rclcpp_action::CancelResponse::ACCEPT;
-  };
-
-  void onExecute(const std::shared_ptr<rclcpp_action::ServerGoalHandle<as2_msgs::action::TakeOff>> goal_handle)
-  {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
-
-    rclcpp::Rate loop_rate(10);
-    const auto goal = goal_handle->get_goal();
-    auto feedback = std::make_shared<as2_msgs::action::TakeOff::Feedback>();
-    auto result = std::make_shared<as2_msgs::action::TakeOff::Result>();
-
-    // Check if goal is done
-    while ((desired_height_ - actual_heigth_) > 0 +TAKEOFF_HEIGHT_THRESHOLD)
-    {
-      if (goal_handle->is_canceling())
-      {
-        result->takeoff_success = false;
-        goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal canceled");
-        //TODO: change this to hover
-        speed_controller_ptr_->sendSpeedCommandWithYawAngle(0,0,0,odom_msg_.pose.pose.orientation);
-        
-        return;
-      }
-
-      // RCLCPP_INFO(this->get_logger(), "Publish feedback");
-      feedback->actual_takeoff_height = actual_heigth_;
-      feedback->actual_takeoff_speed = actual_z_speed_;
-      goal_handle->publish_feedback(feedback);
-
-      loop_rate.sleep();
-    }
-
-    result->takeoff_success = true;
-
-    goal_handle->succeed(result);
-    RCLCPP_INFO(this->get_logger(), "Goal succeeded");
-    //TODO: change this to hover
-    speed_controller_ptr_->sendSpeedCommandWithYawAngle(0,0,0,odom_msg_.pose.pose.orientation);
-  };
+private:
+  void odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
 private:
   std::atomic<float> actual_heigth_;
@@ -114,10 +42,7 @@ private:
   float desired_height_ = 0.0;
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  std::shared_ptr<as2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
-
-
-  
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr traj_pub_;
 };
 
 #endif // TAKE_OFF_BEHAVIOUR_HPP
