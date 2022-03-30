@@ -34,7 +34,8 @@ set(SOURCE_CPP_FILES
   src/as2_basic_behaviour.cpp
   src/takeoff_behaviour.cpp
   src/gotowaypoint_behaviour.cpp
-  )
+  src/land_behaviour.cpp
+)
 
 # set(HEADER_HPP_FILES
 #   include/as2_basic_behaviour.hpp
