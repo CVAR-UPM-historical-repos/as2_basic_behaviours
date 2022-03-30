@@ -34,6 +34,7 @@ set(SOURCE_CPP_FILES
   src/as2_basic_behaviour.cpp
   src/takeoff_behaviour.cpp
   src/gotowaypoint_behaviour.cpp
+  src/follow_path_behaviour.cpp
   src/land_behaviour.cpp
 )
 
