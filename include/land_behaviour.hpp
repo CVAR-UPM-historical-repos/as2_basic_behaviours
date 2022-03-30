@@ -6,6 +6,8 @@
 #include <thread>
 
 #include <as2_basic_behaviour.hpp>
+#include "as2_core/names/actions.hpp"
+#include "as2_core/names/topics.hpp"
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
 #include <as2_msgs/action/land.hpp>

@@ -1,17 +1,17 @@
 #include "gotowaypoint_behaviour.hpp"
 
-GoToWaypointBehaviour::GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>("GoToWaypointBehaviour")
+GoToWaypointBehaviour::GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>(as2_names::actions::behaviours::gotowaypoint)
 {
   // FIXME: Topics names
   odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-      this->generate_global_name("/self_localization/odom"), 10,
+      this->generate_global_name(as2_names::topics::self_localization::odom), as2_names::topics::self_localization::qos,
       std::bind(&GoToWaypointBehaviour::odomCb, this, std::placeholders::_1));
 
   motion_ref_twist_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
-      this->generate_global_name("/motion_reference/twist"), 10);
+      this->generate_global_name(as2_names::topics::motion_reference::twist), as2_names::topics::motion_reference::qos);
 
   traj_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>(
-    this->generate_global_name("motion_reference/trajectory"), 10);
+    this->generate_global_name(as2_names::topics::motion_reference::trajectory), as2_names::topics::motion_reference::qos);
 }
 
 rclcpp_action::GoalResponse GoToWaypointBehaviour::onAccepted(const std::shared_ptr<const as2_msgs::action::GoToWaypoint::Goal> goal)

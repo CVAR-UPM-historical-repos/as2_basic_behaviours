@@ -7,8 +7,8 @@
 #include <Eigen/Dense>
 
 #include <as2_basic_behaviour.hpp>
-#include "as2_control_command_handlers/position_control.hpp"
-#include "as2_control_command_handlers/speed_control.hpp"
+#include "as2_core/names/actions.hpp"
+#include "as2_core/names/topics.hpp"
 
 #include <as2_msgs/action/follow_path.hpp>
 #include <as2_msgs/msg/trajectory_waypoints.hpp>
@@ -26,12 +26,11 @@ public:
   using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::FollowPath>;
   
 
-  FollowPathBehaviour() : as2::BasicBehaviour<as2_msgs::action::FollowPath>("FollowPathBehaviour")
+  FollowPathBehaviour() : as2::BasicBehaviour<as2_msgs::action::FollowPath>(as2_names::actions::behaviours::followpath)
   {
     remaining_waypoints_ = -1;  
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-       
-        this->generate_global_name("/self_localization/odom"), 10,
+        this->generate_global_name(as2_names::topics::self_localization::odom), as2_names::topics::self_localization::qos,
         [this](const nav_msgs::msg::Odometry::ConstSharedPtr msg)
         {
           this->odom_msg_ = *(msg.get());
@@ -73,7 +72,7 @@ public:
         });
 
     traj_waypoints_pub_ = this->create_publisher<as2_msgs::msg::TrajectoryWaypoints>(
-        this->generate_global_name("/motion_reference/waypoints"), 10);
+        this->generate_global_name(as2_names::topics::motion_reference::wayp), as2_names::topics::motion_reference::qos_wp);
 
   };
 

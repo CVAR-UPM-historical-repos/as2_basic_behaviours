@@ -4,8 +4,6 @@
 #include "follow_path_behaviour.hpp"
 #include "as2_core/core_functions.hpp"
 
-
-
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);

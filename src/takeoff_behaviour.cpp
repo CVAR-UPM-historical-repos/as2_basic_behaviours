@@ -1,14 +1,13 @@
 #include "takeoff_behaviour.hpp"
 
-TakeOffBehaviour::TakeOffBehaviour() : as2::BasicBehaviour<as2_msgs::action::TakeOff>("TakeOffBehaviour")
+TakeOffBehaviour::TakeOffBehaviour() : as2::BasicBehaviour<as2_msgs::action::TakeOff>(as2_names::actions::behaviours::takeoff)
 {
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        // FIXME: change topic name
-        this->generate_global_name("/self_localization/odom"), 10,
+        this->generate_global_name(as2_names::topics::self_localization::odom), as2_names::topics::self_localization::qos,
         std::bind(&TakeOffBehaviour::odomCb, this, std::placeholders::_1));
 
     traj_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>(
-    this->generate_global_name("motion_reference/trajectory"), 10);
+    this->generate_global_name(as2_names::topics::motion_reference::trajectory), as2_names::topics::motion_reference::qos);
 };
 
 rclcpp_action::GoalResponse TakeOffBehaviour::onAccepted(const std::shared_ptr<const as2_msgs::action::TakeOff::Goal> goal)

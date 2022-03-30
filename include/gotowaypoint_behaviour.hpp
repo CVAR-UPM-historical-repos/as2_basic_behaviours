@@ -7,8 +7,8 @@
 #include <Eigen/Dense>
 
 #include <as2_basic_behaviour.hpp>
-#include "as2_control_command_handlers/position_control.hpp"
-#include "as2_control_command_handlers/speed_control.hpp"
+#include "as2_core/names/actions.hpp"
+#include "as2_core/names/topics.hpp"
 
 #include <as2_msgs/action/go_to_waypoint.hpp>
 
@@ -56,8 +56,6 @@ private:
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr traj_pub_;
   
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
-  std::shared_ptr<as2::controlCommandsHandlers::SpeedControl> speed_controller_ptr_;
-  std::shared_ptr<as2::controlCommandsHandlers::PositionControl> position_controller_ptr_;
   rclcpp::Time time_;
 };
 

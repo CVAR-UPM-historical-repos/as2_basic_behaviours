@@ -6,8 +6,8 @@
 #include <thread>
 
 #include <as2_basic_behaviour.hpp>
-#include "as2_control_command_handlers/position_control.hpp"
-#include "as2_control_command_handlers/speed_control.hpp"
+#include "as2_core/names/actions.hpp"
+#include "as2_core/names/topics.hpp"
 
 #include <as2_msgs/action/take_off.hpp>
 #include <nav_msgs/msg/odometry.hpp>
