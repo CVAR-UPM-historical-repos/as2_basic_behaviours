@@ -57,6 +57,8 @@ private:
   
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Time time_;
-};
 
-#endif // TAKE_OFF_BEHAVIOUR_HPP
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr motion_ref_twist_pub_;
+};  // GoToWaypointBehaviour class
+
+#endif // GOTO_BEHAVIOUR_HPP

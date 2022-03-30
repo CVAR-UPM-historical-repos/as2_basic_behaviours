@@ -25,7 +25,6 @@ class FollowPathBehaviour : public as2::BasicBehaviour<as2_msgs::action::FollowP
 public:
   using GoalHandleTakeoff = rclcpp_action::ServerGoalHandle<as2_msgs::action::FollowPath>;
   
-
   FollowPathBehaviour() : as2::BasicBehaviour<as2_msgs::action::FollowPath>(as2_names::actions::behaviours::followpath)
   {
     remaining_waypoints_ = -1;  
