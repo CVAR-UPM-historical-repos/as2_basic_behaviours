@@ -65,9 +65,10 @@ private:
         RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
         return rclcpp_action::CancelResponse::ACCEPT;
     };
+
+    // TODO: use Timers instead std::thread
     void handleAccepted(const std::shared_ptr<GoalHandleAction> goal_handle){
     // this needs to return quickly to avoid blocking the executor, so spin up a new thread
-    //TODO: understand why this is necessary
       if (execution_thread_.joinable()) {
         execution_thread_.join();
       }

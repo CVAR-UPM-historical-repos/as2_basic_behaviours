@@ -2,7 +2,6 @@
 
 GoToWaypointBehaviour::GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>(as2_names::actions::behaviours::gotowaypoint)
 {
-  // FIXME: Topics names
   odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
       this->generate_global_name(as2_names::topics::self_localization::odom), as2_names::topics::self_localization::qos,
       std::bind(&GoToWaypointBehaviour::odomCb, this, std::placeholders::_1));
@@ -74,7 +73,6 @@ void GoToWaypointBehaviour::onExecute(const std::shared_ptr<GoalHandleGoToWp> go
     {
       result->goto_success = false;
       goal_handle->canceled(result);
-      // RCLCPP_INFO(this->get_logger(), "Goal cancelled");
       RCLCPP_WARN(this->get_logger(), "Goal cancelled but no new command is sent.");
       // TODO: hover
       return;
