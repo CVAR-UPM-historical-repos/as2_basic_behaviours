@@ -3,15 +3,18 @@
 LandBehaviour::LandBehaviour() : as2::BasicBehaviour<as2_msgs::action::Land>(as2_names::actions::behaviours::land)
 {
     traj_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>(
-        this->generate_global_name(as2_names::topics::motion_reference::trajectory), 
-        as2_names::topics::motion_reference::qos
-    );
+        this->generate_global_name(as2_names::topics::motion_reference::trajectory),
+        as2_names::topics::motion_reference::qos);
+
+    motion_ref_twist_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
+        this->generate_global_name(as2_names::topics::motion_reference::twist), as2_names::topics::motion_reference::qos);
 
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        this->generate_global_name(as2_names::topics::self_localization::odom), 
+        this->generate_global_name(as2_names::topics::self_localization::odom),
         as2_names::topics::self_localization::qos,
-        std::bind(&LandBehaviour::odomCb, this, std::placeholders::_1)
-    );
+        std::bind(&LandBehaviour::odomCb, this, std::placeholders::_1));
+
+    set_control_mode_srv_client_ = this->create_client<as2_msgs::srv::SetControllerControlMode>(this->generate_global_name("/set_controller_control_mode"));
 };
 
 rclcpp_action::GoalResponse LandBehaviour::onAccepted(const std::shared_ptr<const as2_msgs::action::Land::Goal> goal)
@@ -60,6 +63,10 @@ void LandBehaviour::onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_hand
         msg.accelerations = {0.0, 0.0, 0.0, 0.0};
         traj_pub_->publish(msg);
 
+        Eigen::Vector3d set_speed = Eigen::Vector3d::Zero();
+        set_speed.z() = desired_speed_;
+        motion_ref_twist_pub_->publish(LandBehaviour::getTwistStamped(set_speed, 0.0, 0.0));
+
         // RCLCPP_INFO(this->get_logger(), "Publish feedback");
         feedback->actual_land_height = actual_heigth_;
         feedback->actual_land_speed = actual_z_speed_;
@@ -79,6 +86,10 @@ void LandBehaviour::onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_hand
     msg.velocities = {0.0, 0.0, 0.0, 0.0};
     msg.accelerations = {0.0, 0.0, 0.0, 0.0};
     traj_pub_->publish(msg);
+
+    Eigen::Vector3d set_speed = Eigen::Vector3d::Zero();
+    set_speed.z() = -0.5;
+    motion_ref_twist_pub_->publish(LandBehaviour::getTwistStamped(set_speed, 0.0, 0.0));
 };
 
 bool LandBehaviour::checkGoalCondition()
@@ -102,4 +113,16 @@ void LandBehaviour::odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
     this->odom_msg_ = *(msg.get());
     this->actual_heigth_ = msg->pose.pose.position.z;
     this->actual_z_speed_ = msg->twist.twist.linear.z;
+}
+
+geometry_msgs::msg::TwistStamped LandBehaviour::getTwistStamped(Eigen::Vector3d set_speed, double vyaw, double desired_yaw)
+{
+    geometry_msgs::msg::TwistStamped msg;
+    msg.header.stamp = rclcpp::Time(0);
+    msg.twist.linear.x = set_speed.x();
+    msg.twist.linear.y = set_speed.y();
+    msg.twist.linear.z = set_speed.z();
+    msg.twist.angular.y = desired_yaw;
+    msg.twist.angular.z = vyaw;
+    return msg;
 }

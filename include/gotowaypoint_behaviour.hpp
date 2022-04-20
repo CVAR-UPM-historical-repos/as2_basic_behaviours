@@ -17,7 +17,10 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
-#define GOAL_THRESHOLD 0.1 // [m]
+#include "as2_msgs/msg/controller_control_mode.hpp"
+#include "as2_msgs/srv/set_controller_control_mode.hpp"
+
+#define GOAL_THRESHOLD 0.2 // [m]
 
 
 class GoToWaypointBehaviour : public as2::BasicBehaviour<as2_msgs::action::GoToWaypoint>
@@ -35,6 +38,8 @@ private:
   void odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
   bool checkGoalCondition();
   float getValidSpeed(float speed);
+  geometry_msgs::msg::TwistStamped getTwistStamped(Eigen::Vector3d set_speed, double vyaw, double desired_yaw);
+  rclcpp::Client<as2_msgs::srv::SetControllerControlMode>::SharedPtr set_control_mode_srv_client_;
 
 private:
   std::mutex pose_mutex_;
@@ -54,7 +59,6 @@ private:
 
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr motion_ref_twist_pub_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr traj_pub_;
-  
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Time time_;
 };  // GoToWaypointBehaviour class

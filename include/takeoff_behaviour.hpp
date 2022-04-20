@@ -4,16 +4,21 @@
 #include <memory>
 #include <functional>
 #include <thread>
+#include <Eigen/Dense>
 
 #include <as2_basic_behaviour.hpp>
 #include "as2_core/names/actions.hpp"
 #include "as2_core/names/topics.hpp"
+#include "as2_core/names/services.hpp"
 
 #include <as2_msgs/action/take_off.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
+
+#include "as2_msgs/msg/controller_control_mode.hpp"
+#include "as2_msgs/srv/set_controller_control_mode.hpp"
 
 #define DEFAULT_TAKEOFF_ALTITUDE 1.0 // [m]
 #define DEFAULT_TAKEOFF_SPEED 0.4    // [m/s]
@@ -32,6 +37,8 @@ public:
 
 private:
   void odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
+  geometry_msgs::msg::TwistStamped getTwistStamped(Eigen::Vector3d set_speed, double vyaw, double desired_yaw);
+  rclcpp::Client<as2_msgs::srv::SetControllerControlMode>::SharedPtr set_control_mode_srv_client_;
 
 private:
   std::atomic<float> actual_heigth_;
@@ -43,6 +50,7 @@ private:
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr traj_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr motion_ref_twist_pub_;
 };
 
 #endif // TAKE_OFF_BEHAVIOUR_HPP

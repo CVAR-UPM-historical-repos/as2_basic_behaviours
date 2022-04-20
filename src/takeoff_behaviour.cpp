@@ -8,6 +8,11 @@ TakeOffBehaviour::TakeOffBehaviour() : as2::BasicBehaviour<as2_msgs::action::Tak
 
     traj_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>(
     this->generate_global_name(as2_names::topics::motion_reference::trajectory), as2_names::topics::motion_reference::qos);
+    
+    motion_ref_twist_pub_ = this->create_publisher<geometry_msgs::msg::TwistStamped>(
+        this->generate_global_name(as2_names::topics::motion_reference::twist), as2_names::topics::motion_reference::qos);
+
+    // set_control_mode_srv_client_ = this->create_client<as2_msgs::srv::SetControllerControlMode>(this->generate_global_name(as2_names::services::motion_reference::setcontrolmode));
 };
 
 rclcpp_action::GoalResponse TakeOffBehaviour::onAccepted(const std::shared_ptr<const as2_msgs::action::TakeOff::Goal> goal)
@@ -45,6 +50,21 @@ void TakeOffBehaviour::onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_h
 
     rclcpp::Time start_time = this->now();
 
+    // auto request = std::make_shared<as2_msgs::srv::SetControllerControlMode::Request>();
+    // request->control_mode.mode = as2_msgs::msg::ControllerControlMode::SPEED;
+
+    // while (!set_control_mode_srv_client_->wait_for_service(std::chrono::seconds(1))) {
+    //     // RCLCPP_INFO(node_ptr_->get_logger(), "waiting for service ok");
+    //     if (!rclcpp::ok()) {
+    //         RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+    //         return;
+    //     }
+    //     RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+    // }
+
+    // auto srv_result = set_control_mode_srv_client_->async_send_request(request);
+
+
     // Check if goal is done
     while ((desired_height_ - actual_heigth_) > 0 + TAKEOFF_HEIGHT_THRESHOLD)
     {
@@ -67,6 +87,15 @@ void TakeOffBehaviour::onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_h
         msg.accelerations = {0.0, 0.0, 0.0, 0.0};
         traj_pub_->publish(msg);
 
+        RCLCPP_INFO(this->get_logger(), "Publishing twist point");
+        Eigen::Vector3d set_speed = Eigen::Vector3d::Zero();
+        set_speed.z() = desired_speed_;
+        RCLCPP_INFO(this->get_logger(), "Getting twist point");
+        geometry_msgs::msg::TwistStamped msg_twist = TakeOffBehaviour::getTwistStamped(set_speed, 0.0, 0.0);
+        RCLCPP_INFO(this->get_logger(), "Publishing twist point %f %f %f", msg_twist.twist.linear.x, msg_twist.twist.linear.y, msg_twist.twist.linear.z);
+        motion_ref_twist_pub_->publish(msg_twist);
+        RCLCPP_INFO(this->get_logger(), "Twist point published");
+
         // RCLCPP_INFO(this->get_logger(), "Publish feedback");
         feedback->actual_takeoff_height = actual_heigth_;
         feedback->actual_takeoff_speed = actual_z_speed_;
@@ -86,6 +115,10 @@ void TakeOffBehaviour::onExecute(const std::shared_ptr<GoalHandleTakeoff> goal_h
     msg.velocities = {0.0, 0.0, 0.0, 0.0};
     msg.accelerations = {0.0, 0.0, 0.0, 0.0};
     traj_pub_->publish(msg);
+
+    Eigen::Vector3d set_speed = Eigen::Vector3d::Zero();
+    motion_ref_twist_pub_->publish(TakeOffBehaviour::getTwistStamped(set_speed, 0.0, 0.0));
+
 };
 
 void TakeOffBehaviour::odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
@@ -93,4 +126,16 @@ void TakeOffBehaviour::odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
     this->odom_msg_ = *(msg.get());
     this->actual_heigth_ = msg->pose.pose.position.z;
     this->actual_z_speed_ = msg->twist.twist.linear.z;
+}
+
+geometry_msgs::msg::TwistStamped TakeOffBehaviour::getTwistStamped(Eigen::Vector3d set_speed, double vyaw, double desired_yaw)
+{
+    geometry_msgs::msg::TwistStamped msg;
+    msg.header.stamp = rclcpp::Time(0);
+    msg.twist.linear.x = set_speed.x();
+    msg.twist.linear.y = set_speed.y();
+    msg.twist.linear.z = set_speed.z();
+    msg.twist.angular.y = desired_yaw;
+    msg.twist.angular.z = vyaw;
+    return msg;
 }

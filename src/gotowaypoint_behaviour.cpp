@@ -12,6 +12,8 @@ GoToWaypointBehaviour::GoToWaypointBehaviour() : as2::BasicBehaviour<as2_msgs::a
 
   traj_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>(
     this->generate_global_name(as2_names::topics::motion_reference::trajectory), as2_names::topics::motion_reference::qos);
+
+  set_control_mode_srv_client_ = this->create_client<as2_msgs::srv::SetControllerControlMode>(this->generate_global_name("/set_controller_control_mode"));
 }
 
 rclcpp_action::GoalResponse GoToWaypointBehaviour::onAccepted(const std::shared_ptr<const as2_msgs::action::GoToWaypoint::Goal> goal)
@@ -88,6 +90,8 @@ void GoToWaypointBehaviour::onExecute(const std::shared_ptr<GoalHandleGoToWp> go
     rclcpp::Time t = this->now();
     msg.time_from_start.sec = t.seconds() - time_.seconds();
     msg.time_from_start.nanosec = t.nanoseconds() - time_.nanoseconds();
+
+    double vyaw = 0;
     if ( ignore_yaw_ )
     {
       msg.positions = {0.0, 0.0, 0.0, desired_yaw};
@@ -96,12 +100,15 @@ void GoToWaypointBehaviour::onExecute(const std::shared_ptr<GoalHandleGoToWp> go
                         getValidSpeed(set_speed.z()), 0};
     } else {
       msg.positions = {0.0, 0.0, 0.0, 0.0};
-      double vyaw = -atan2f((double)set_speed.x(), (double)set_speed.y()) + M_PI / 2.0f;
+      vyaw = -atan2f((double)set_speed.x(), (double)set_speed.y()) + M_PI / 2.0f;
       msg.velocities = {getValidSpeed(set_speed.x()), 
                         getValidSpeed(set_speed.y()), 
                         getValidSpeed(set_speed.z()),
-                        getValidSpeed(vyaw)};    
+                        getValidSpeed(vyaw)}; 
     }
+
+    motion_ref_twist_pub_->publish(GoToWaypointBehaviour::getTwistStamped(set_speed, vyaw, desired_yaw));
+
     msg.accelerations = {0.0, 0.0, 0.0, 0.0};
     traj_pub_->publish(msg);
 
@@ -132,6 +139,9 @@ void GoToWaypointBehaviour::onExecute(const std::shared_ptr<GoalHandleGoToWp> go
   msg.velocities = {0.0, 0.0, 0.0, 0.0};
   msg.accelerations = {0.0, 0.0, 0.0, 0.0};
   traj_pub_->publish(msg);
+
+  Eigen::Vector3d set_speed = Eigen::Vector3d::Zero();
+  motion_ref_twist_pub_->publish(GoToWaypointBehaviour::getTwistStamped(set_speed, 0.0, 0.0));
 };
 
 void GoToWaypointBehaviour::odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
@@ -172,4 +182,16 @@ float GoToWaypointBehaviour::getValidSpeed(float speed)
     return desired_speed_;
   }
   return speed;
+}
+
+geometry_msgs::msg::TwistStamped GoToWaypointBehaviour::getTwistStamped(Eigen::Vector3d set_speed, double vyaw, double desired_yaw) 
+{
+  geometry_msgs::msg::TwistStamped msg;
+  msg.header.stamp = rclcpp::Time(0);
+  msg.twist.linear.x = set_speed.x();
+  msg.twist.linear.y = set_speed.y();
+  msg.twist.linear.z = set_speed.z();
+  msg.twist.angular.y = desired_yaw;
+  msg.twist.angular.z = vyaw;
+  return msg;
 }
