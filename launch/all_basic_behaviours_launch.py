@@ -18,6 +18,11 @@ def generate_launch_description():
         'config',
         'land_behaviour.yaml'
     )
+    config_goto = join(
+        get_package_share_directory('goto_behaviour'),
+        'config',
+        'goto_behaviour.yaml'
+    )
     return LaunchDescription([
         DeclareLaunchArgument('drone_id', default_value='drone0'),
         Node(
@@ -39,10 +44,11 @@ def generate_launch_description():
             emulate_tty=True
         ),
         Node(
-            package='as2_basic_behaviours',
-            executable='gotowaypoint_behaviour_node',
-            name='gotowaypoint_behaviour_node',
+            package='goto_behaviour',
+            executable='goto_behaviour_node',
+            name='goto_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
+            parameters=[config_goto],
             output='screen',
             emulate_tty=True
         ),
