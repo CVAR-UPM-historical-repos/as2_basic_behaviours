@@ -23,6 +23,11 @@ def generate_launch_description():
         'config',
         'goto_behaviour.yaml'
     )
+    config_follow_path = join(
+        get_package_share_directory('follow_path_behaviour'),
+        'config',
+        'follow_path_behaviour.yaml'
+    )
     return LaunchDescription([
         DeclareLaunchArgument('drone_id', default_value='drone0'),
         Node(
@@ -53,10 +58,11 @@ def generate_launch_description():
             emulate_tty=True
         ),
         Node(
-            package='as2_basic_behaviours',
+            package='follow_path_behaviour',
             executable='follow_path_behaviour_node',
             name='follow_path_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
+            parameters=[config_follow_path],
             output='screen',
             emulate_tty=True
         )
