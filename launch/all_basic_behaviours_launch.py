@@ -33,7 +33,6 @@ def generate_launch_description():
         Node(
             package='takeoff_behaviour',
             executable='takeoff_behaviour_node',
-            name='takeoff_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
             parameters=[config_takeoff],
             output='screen',
@@ -42,7 +41,6 @@ def generate_launch_description():
         Node(
             package='land_behaviour',
             executable='land_behaviour_node',
-            name='land_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
             parameters=[config_land],
             output='screen',
@@ -51,7 +49,6 @@ def generate_launch_description():
         Node(
             package='goto_behaviour',
             executable='goto_behaviour_node',
-            name='goto_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
             parameters=[config_goto],
             output='screen',
@@ -60,7 +57,6 @@ def generate_launch_description():
         Node(
             package='follow_path_behaviour',
             executable='follow_path_behaviour_node',
-            name='follow_path_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
             parameters=[config_follow_path],
             output='screen',
