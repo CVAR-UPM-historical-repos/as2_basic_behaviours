@@ -22,7 +22,6 @@
   <depend>as2_msgs</depend>
   <depend>px4_ros_com</depend>
   <depend>rclcpp_action</depend>
-  <depend>as2_control_command_handlers</depend>
   
 
   <!-- linting test dependencies -->

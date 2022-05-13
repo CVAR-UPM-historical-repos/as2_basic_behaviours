@@ -22,7 +22,6 @@ set(PROJECT_DEPENDENCIES
   as2_msgs
   px4_ros_com
   std_srvs
-  as2_control_command_handlers
   trajectory_msgs
 )
 
