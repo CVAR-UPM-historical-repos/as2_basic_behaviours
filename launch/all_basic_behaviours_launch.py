@@ -1,40 +1,38 @@
-from os.path import join
-
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
-from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import LaunchConfiguration, EnvironmentVariable, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    config_takeoff = join(
-        get_package_share_directory('takeoff_behaviour'),
-        'config',
-        'takeoff_behaviour.yaml'
-    )
-    config_land = join(
-        get_package_share_directory('land_behaviour'),
-        'config',
-        'land_behaviour.yaml'
-    )
-    config_goto = join(
-        get_package_share_directory('goto_behaviour'),
-        'config',
-        'goto_behaviour.yaml'
-    )
-    config_follow_path = join(
-        get_package_share_directory('follow_path_behaviour'),
-        'config',
-        'follow_path_behaviour.yaml'
-    )
+    config_takeoff = PathJoinSubstitution([
+        FindPackageShare('takeoff_behaviour'),
+        'config', 'takeoff_behaviour.yaml'
+    ])
+    config_land = PathJoinSubstitution([
+        FindPackageShare('land_behaviour'),
+        'config', 'land_behaviour.yaml'
+    ])
+    config_goto = PathJoinSubstitution([
+        FindPackageShare('goto_behaviour'),
+        'config', 'goto_behaviour.yaml'
+    ])
+    config_follow_path = PathJoinSubstitution([
+        FindPackageShare('follow_path_behaviour'),
+        'config', 'follow_path_behaviour.yaml'
+    ])
     return LaunchDescription([
-        DeclareLaunchArgument('drone_id', default_value='drone0'),
+        DeclareLaunchArgument('drone_id', default_value=EnvironmentVariable('AEROSTACK2_SIMULATION_DRONE_ID')),
+        DeclareLaunchArgument('config_takeoff', default_value=config_takeoff),
+        DeclareLaunchArgument('config_land', default_value=config_land),
+        DeclareLaunchArgument('config_goto', default_value=config_goto),
+        DeclareLaunchArgument('config_follow_path', default_value=config_follow_path),
         Node(
             package='takeoff_behaviour',
             executable='takeoff_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
-            parameters=[config_takeoff],
+            parameters=[LaunchConfiguration('config_takeoff')],
             output='screen',
             emulate_tty=True
         ),
@@ -42,7 +40,7 @@ def generate_launch_description():
             package='land_behaviour',
             executable='land_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
-            parameters=[config_land],
+            parameters=[LaunchConfiguration('config_land')],
             output='screen',
             emulate_tty=True
         ),
@@ -50,7 +48,7 @@ def generate_launch_description():
             package='goto_behaviour',
             executable='goto_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
-            parameters=[config_goto],
+            parameters=[LaunchConfiguration('config_goto')],
             output='screen',
             emulate_tty=True
         ),
@@ -58,7 +56,7 @@ def generate_launch_description():
             package='follow_path_behaviour',
             executable='follow_path_behaviour_node',
             namespace=LaunchConfiguration('drone_id'),
-            parameters=[config_follow_path],
+            parameters=[LaunchConfiguration('config_follow_path')],
             output='screen',
             emulate_tty=True
         )
