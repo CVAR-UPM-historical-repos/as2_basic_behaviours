@@ -1,6 +1,5 @@
-#include "as2_basic_behaviors/set_arming_state_behavior.hpp"
-
 #include <rclcpp/rclcpp.hpp>
+#include "as2_basic_behaviors/set_arming_state_behavior.hpp"
 
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);

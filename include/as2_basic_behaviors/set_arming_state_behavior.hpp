@@ -25,12 +25,12 @@ public:
     req->data = goal->request;
     using namespace std::chrono_literals;
     if (!client_->wait_for_service(5s)) {
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available");
+      RCLCPP_INFO(get_logger(), "service not available");
       return false;
     }
     future_ = client_->async_send_request(req);
     if (!future_.valid()) {
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "request not sent");
+      RCLCPP_INFO(get_logger(), "request not sent");
       return false;
     }
     return true;
