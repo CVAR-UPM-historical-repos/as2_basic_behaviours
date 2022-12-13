@@ -47,12 +47,17 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 
 add_executable(arm_behavior src/set_arming_state_behavior_main.cpp )
-rosidl_target_interfaces(arm_behavior ${PROJECT_NAME} "rosidl_typesupport_cpp")
-ament_target_dependencies(arm_behavior ${PROJECT_DEPENDENCIES})
-
 add_executable(offboard_behavior src/set_offboard_mode_behavior_main.cpp)
-rosidl_target_interfaces(offboard_behavior ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+ament_target_dependencies(arm_behavior ${PROJECT_DEPENDENCIES})
 ament_target_dependencies(offboard_behavior ${PROJECT_DEPENDENCIES})
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+target_link_libraries(arm_behavior "${cpp_typesupport_target}")
+
+target_link_libraries(offboard_behavior "${cpp_typesupport_target}")
+
 install(TARGETS
   arm_behavior
   offboard_behavior
