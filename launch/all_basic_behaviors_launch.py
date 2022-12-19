@@ -23,12 +23,14 @@ def generate_launch_description():
         'config', 'follow_path_behaviour.yaml'
     ])
     return LaunchDescription([
-        DeclareLaunchArgument('namespace', default_value=EnvironmentVariable('AEROSTACK2_SIMULATION_DRONE_ID')),
+        DeclareLaunchArgument('namespace', default_value=EnvironmentVariable(
+            'AEROSTACK2_SIMULATION_DRONE_ID')),
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('config_takeoff', default_value=config_takeoff),
         DeclareLaunchArgument('config_land', default_value=config_land),
         DeclareLaunchArgument('config_goto', default_value=config_goto),
-        DeclareLaunchArgument('config_follow_path', default_value=config_follow_path),
+        DeclareLaunchArgument('config_follow_path',
+                              default_value=config_follow_path),
         Node(
             package='takeoff_behaviour',
             executable='takeoff_behaviour_node',
@@ -72,16 +74,16 @@ def generate_launch_description():
 
         Node(
             package='as2_basic_behaviors',
-            executable='set_arming_state_behavior',
+            executable='arm_behavior',
             namespace=LaunchConfiguration('namespace'),
             parameters=[
                 {"use_sim_time": LaunchConfiguration('use_sim_time')}],
             output='screen',
             emulate_tty=True
-       ),
+        ),
         Node(
             package='as2_basic_behaviors',
-            executable='set_offboard_mode_behavior',
+            executable='offboard_behavior',
             namespace=LaunchConfiguration('namespace'),
             parameters=[
                 {"use_sim_time": LaunchConfiguration('use_sim_time')}],
